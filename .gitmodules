@@ -1,0 +1,3 @@
+[submodule "STNewsFeedParser"]
+	path = STNewsFeedParser
+	url = https://github.com/tmergulhao/STNewsFeedParser.git
