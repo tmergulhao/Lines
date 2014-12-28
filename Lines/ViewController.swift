@@ -119,26 +119,13 @@ class ViewController: UITableViewController, STNewsFeedParserDelegate {
         tableView.contentInset = UIEdgeInsetsZero
         
         CoreDataInterface().loadSession()
+        
         var feeds = CoreDataInterface().listView
-//
-//        var feedAddresses = [
-//            "http://daringfireball.net/feeds/main",
-//            "http://feeds.gawker.com/lifehacker/full",
-//            "http://www.swiss-miss.com/feed",
-//            "http://nautil.us/rss/all",
-//            "http://feeds.feedburner.com/zenhabits",
-//            "http://feeds.feedburner.com/codinghorror",
-//            "http://red-glasses.com/index.php/feed/",
-//            "http://bldgblog.blogspot.com/feeds/posts/default?alt=rss",
-//            "http://alistapart.com/site/rss"]
-//       
-//        for address in feedAddresses {
-//            CoreDataInterface().addItem(ofAddress: address)
-//        }
         
         for address in feeds {
             if let url = NSURL(string: address) {
                 var feed = STNewsFeedParser(feedFromUrl: url)
+                
                 feed.delegate = self
                 
                 self.feeds[address] = feed
