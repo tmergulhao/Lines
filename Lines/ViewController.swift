@@ -19,11 +19,9 @@
 //  limitations under the License.
 
 import UIKit
-import STNewsFeed
+import STNewsFeedParser
 
 class ViewController: UITableViewController, STNewsFeedParserDelegate {
-    
-    var secondaryQueue : dispatch_queue_t!
     
     var feeds : Dictionary<String, STNewsFeedParser> = [:]
     var entries : Array<STNewsFeedEntry> = []
@@ -31,25 +29,20 @@ class ViewController: UITableViewController, STNewsFeedParserDelegate {
     let favicon = UIImage(named: "Favicon")
     
     func refreshData () {
-        entries.removeAll(keepCapacity: true)
         
-        for feed in feeds.values {
-            dispatch_async(secondaryQueue) {
-                feed.parse()
-            }
+        for feed in self.feeds.values {
+            feed.parse()
         }
         
-        dispatch_async(secondaryQueue) {
-            if self.refreshControl != nil {
-                var formatter = NSDateFormatter()
-                formatter.setLocalizedDateFormatFromTemplate("MMM d, h:mm a")
-                var title = "Last update: " + formatter.stringFromDate(NSDate())
-                var attributedTitle = NSAttributedString(string: title)
-                self.refreshControl!.attributedTitle = attributedTitle;
-                
-                self.refreshControl!.endRefreshing()
-            }
-        }
+        var formatter = NSDateFormatter()
+        formatter.setLocalizedDateFormatFromTemplate("MMM d, h:mm a")
+        var title = "Last update: " + formatter.stringFromDate(NSDate())
+        var attributedTitle = NSAttributedString(string: title)
+        
+        self.refreshControl?.attributedTitle = attributedTitle;
+        
+        self.refreshControl?.endRefreshing()
+        
     }
     
     // MARK: - NewsFeedDelegate
