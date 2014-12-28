@@ -26,13 +26,13 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Td5-35-2Ve">
-                                            <rect key="frame" x="68" y="32" width="524" height="20"/>
+                                            <rect key="frame" x="68" y="35" width="524" height="20"/>
                                             <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                             <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Address" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IXZ-Gv-ILX">
-                                            <rect key="frame" x="68" y="58" width="524" height="20"/>
+                                            <rect key="frame" x="68" y="61" width="524" height="17"/>
                                             <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
                                             <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                             <nil key="highlightedColor"/>
@@ -51,7 +51,7 @@
                                         <constraint firstItem="jDx-JK-OLj" firstAttribute="leading" secondItem="Lpx-XP-BVJ" secondAttribute="leadingMargin" constant="60" id="f4N-vI-4Qj"/>
                                         <constraint firstItem="jDx-JK-OLj" firstAttribute="trailing" secondItem="Lpx-XP-BVJ" secondAttribute="trailingMargin" id="g63-7P-9So"/>
                                         <constraint firstItem="IXZ-Gv-ILX" firstAttribute="trailing" secondItem="Lpx-XP-BVJ" secondAttribute="trailingMargin" id="mXg-Q8-eqn"/>
-                                        <constraint firstItem="Td5-35-2Ve" firstAttribute="top" secondItem="jDx-JK-OLj" secondAttribute="bottom" constant="4" id="sd3-3n-CC6"/>
+                                        <constraint firstItem="Td5-35-2Ve" firstAttribute="top" secondItem="jDx-JK-OLj" secondAttribute="bottom" constant="7" id="sd3-3n-CC6"/>
                                         <constraint firstAttribute="bottomMargin" secondItem="Td5-35-2Ve" secondAttribute="bottom" priority="252" constant="27" id="ujR-sE-XwM"/>
                                     </constraints>
                                 </tableViewCellContentView>
