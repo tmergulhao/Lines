@@ -102,8 +102,6 @@ class ViewController: UITableViewController, STNewsFeedParserDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        secondaryQueue = dispatch_queue_create("XMLRequest", DISPATCH_QUEUE_SERIAL)
-        
         refreshControl?.addTarget(self, action: Selector("refreshData"), forControlEvents: UIControlEvents.ValueChanged)
         
         tableView.estimatedRowHeight = 87
@@ -189,9 +187,47 @@ class ViewController: UITableViewController, STNewsFeedParserDelegate {
             
             self.tableView.setEditing(false, animated: true)
         });
-        // readLaterRowAction.backgroundColor = UIColor(patternImage: favicon!)
         
-        return [readLaterRowAction];
+        var silenceRowAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "Silence", handler:{action, indexpath in
+            println("Silence");
+            
+            self.tableView.setEditing(false, animated: true)
+            
+            var target = self.entries[indexPath.row].info.title
+            
+            let alert = UIAlertView(title: "Silence for 24 hours", message: "\n\(target) is silenced for 24 hours.\nYou may turn it on again at the edit panel.\nHave a nice rest and keep reading.", delegate: self, cancelButtonTitle: "OK")
+            
+            alert.show()
+            
+            var i = 0
+            var j = 0
+            var indexPaths : Array<NSObject> = []
+            
+            for var i = 0, j = 0; i+j < self.entries.count; {
+                
+                if self.entries[i].info.title == target {
+                    self.entries.removeAtIndex(i)
+                    
+                    indexPaths.append(NSIndexPath(forRow: i + j, inSection: indexpath.section))
+                    
+                    j++
+                } else {
+                    i++
+                }
+            }
+            
+            self.tableView.deleteRowsAtIndexPaths(indexPaths, withRowAnimation: UITableViewRowAnimation.Automatic)
+            
+            self.entries = self.entries.filter({
+                $0.info.title != target
+            })
+            
+            self.tableView.reloadData()
+        });
+        // readLaterRowAction.backgroundColor = UIColor.darkGrayColor()
+        // silenceRowAction.backgroundColor = UIColor.purpleColor() // UIColor(patternImage: favicon!)
+        
+        return [readLaterRowAction, silenceRowAction];
     }
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         //
