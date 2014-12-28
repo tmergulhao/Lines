@@ -26,6 +26,9 @@ class ViewController: UITableViewController, STNewsFeedParserDelegate {
     var feeds : Dictionary<String, STNewsFeedParser> = [:]
     var entries : Array<STNewsFeedEntry> = []
     
+    @IBOutlet weak var placeholderImage: UIImageView!
+    @IBOutlet var placeHolderText : UILabel!
+    
     let favicon = UIImage(named: "Favicon")
     
     func refreshData () {
@@ -63,8 +66,6 @@ class ViewController: UITableViewController, STNewsFeedParserDelegate {
                 println(description)
             }
         }
-        
-        feeds.removeValueForKey(feed.info.address)
     }
     func newsFeed(feed: STNewsFeedParser, XMLParserError error: NSError) {
         if let errorDict = error.userInfo as? Dictionary<String, String> {
@@ -74,8 +75,6 @@ class ViewController: UITableViewController, STNewsFeedParserDelegate {
                 println(description)
             }
         }
-        
-        feeds.removeValueForKey(feed.info.address)
     }
     func newsFeed(feed: STNewsFeedParser, invalidAddress address: String, andError error: NSError) {
         if let errorDict = error.userInfo as? Dictionary<String, String> {
@@ -86,7 +85,7 @@ class ViewController: UITableViewController, STNewsFeedParserDelegate {
             }
         }
         
-        feeds.removeValueForKey(feed.info.address)
+        feeds.removeValueForKey(feed.info.link)
     }
 //    func newsFeed(feed: NewsFeedParser, unknownElement elementName: String, withAttributes attributeDict: NSDictionary, andError error: NSError) {
 //        if let errorDict = error.userInfo as? Dictionary<String, String> {
@@ -160,9 +159,25 @@ class ViewController: UITableViewController, STNewsFeedParserDelegate {
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("idCell", forIndexPath: indexPath) as CustomTableViewCell
         
-        cell.title.text = entries[indexPath.row].title
-        cell.feedName.text = entries[indexPath.row].info.title
-        cell.address.text = entries[indexPath.row].info.address
+        let entry = entries[indexPath.row]
+        
+        let formatter = NSDateFormatter()
+        formatter.dateStyle = .MediumStyle
+        formatter.doesRelativeDateFormatting = true
+        
+//        let formatter = NSDateFormatter()
+//        formatter.setLocalizedDateFormatFromTemplate("MMM d")
+        
+        let date = entry.date
+        
+        if let simpleLink = entry.info.domain {
+            cell.address.text = simpleLink + " — " + formatter.stringFromDate(date)
+        } else {
+            cell.address.text = entry.info.link + " — " + formatter.stringFromDate(date)
+        }
+        
+        cell.title.text = entry.title
+        cell.feedName.text = entry.info.title
         cell.favImage.image = favicon
         
         return cell
