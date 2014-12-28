@@ -28,7 +28,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        // Override point for customization after application launch.
+        
+        // In the storyboard, uncheck the "Is initial View Controller" attribute from the first view controller.
+        // In the app's setting, go to your target and the Info tab. There clear the value of Main storyboard file base name. On the General tab, clear the value for Main Interface. This will remove the warning.
+        // https://stackoverflow.com/questions/10428629/programatically-set-the-initial-view-controller-using-storyboards/14926009#14926009
+        
+        /*
+        
+        var storyboard = UIStoryboard(name: "Main", bundle: nil)
+        
+        var someStoryboardView : SomeViewClass = storyboard.instantiateViewControllerWithIdentifier("someView")
+        var mainStoryboardView : MainViewClass = storyboard.instantiateInitialViewController()
+        
+        
+        
+        UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"MainStoryboard_iPhone"
+        bundle: nil];
+        
+        self.window = UIWindow(frame: UIScreen.mainScreen().bounds)
+        
+        self.window?.rootViewController = ViewController()
+        
+        self.window?.makeKeyAndVisible()
+        */
+        
         return true
     }
 
