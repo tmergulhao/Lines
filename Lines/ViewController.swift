@@ -183,19 +183,17 @@ class ViewController: UITableViewController, STNewsFeedParserDelegate {
     override func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [AnyObject]? {
         
         var readLaterRowAction = UITableViewRowAction(style: UITableViewRowActionStyle.Normal, title: "Read later", handler:{action, indexpath in
-            println("Read later");
             
             self.tableView.setEditing(false, animated: true)
         });
         
-        var silenceRowAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "Silence", handler:{action, indexpath in
-            println("Silence");
+        var silenceRowAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "Mute", handler:{action, indexpath in
             
             self.tableView.setEditing(false, animated: true)
             
             var target = self.entries[indexPath.row].info.title
             
-            let alert = UIAlertView(title: "Silence for 24 hours", message: "\n\(target) is silenced for 24 hours.\nYou may turn it on again at the edit panel.\nHave a nice rest and keep reading.", delegate: self, cancelButtonTitle: "OK")
+            let alert = UIAlertView(title: "\(target) is muted", message: "You may unmute it on at the subscriptions panel.\nHave a nice rest and keep reading.", delegate: self, cancelButtonTitle: "OK")
             
             alert.show()
             

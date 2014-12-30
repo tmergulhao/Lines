@@ -7,7 +7,7 @@ Features to be implemented:
 
 - Contextual feed list with image assets for RSS, Atom and Podcast delegations;
 - Subscribe extension for Safari and others with feed discovery for given domain or plain text;
-- Silence trigger on feed list;
+- Mute trigger on feed list;
 - Reader later list with caching;
 - iCloud sync for feeds and read later;
 - Readability mode.
