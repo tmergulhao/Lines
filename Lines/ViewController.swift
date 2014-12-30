@@ -25,9 +25,10 @@ class ViewController: UITableViewController, STNewsFeedParserDelegate {
     
     var feeds : Dictionary<String, STNewsFeedParser> = [:]
     var entries : Array<STNewsFeedEntry> = []
+    var newEntries : Array<STNewsFeedEntry> = []
     
     @IBOutlet weak var placeholderImage: UIImageView!
-    @IBOutlet var placeHolderText : UILabel!
+    @IBOutlet var placeholderText : UILabel!
     
     let favicon = UIImage(named: "Favicon")
     
@@ -37,25 +38,40 @@ class ViewController: UITableViewController, STNewsFeedParserDelegate {
             feed.parse()
         }
         
-        var formatter = NSDateFormatter()
-        formatter.setLocalizedDateFormatFromTemplate("MMM d, h:mm a")
-        var title = "Last update: " + formatter.stringFromDate(NSDate())
-        var attributedTitle = NSAttributedString(string: title)
-        
-        self.refreshControl?.attributedTitle = attributedTitle;
-        
-        self.refreshControl?.endRefreshing()
-        
+    }
+    var dataParsing : Bool {
+        get {
+            var lock : Bool = false
+            for (address, feed) in feeds {
+                lock = lock || feed.isParsing
+            }
+            return lock
+        }
     }
     
     // MARK: - NewsFeedDelegate
     func willBeginFeedParsing (parser : STNewsFeedParser) {}
     func didFinishFeedParsing (parser : STNewsFeedParser) {
-        entries.extend(parser.entries)
         
-        entries.sort { $0.date!.compare($1.date!) != NSComparisonResult.OrderedAscending }
+        if parser.entries.isEmpty == false {
+            
+            newEntries.extend(parser.entries)
+            
+            tableView.reloadData()
+            
+        }
         
-        tableView.reloadData()
+        if dataParsing == false {
+            var formatter = NSDateFormatter()
+            formatter.setLocalizedDateFormatFromTemplate("MMM d, h:mm a")
+            var title = "Last update: " + formatter.stringFromDate(NSDate())
+            var attributedTitle = NSAttributedString(string: title)
+            
+            self.refreshControl?.attributedTitle = attributedTitle;
+            
+            self.refreshControl?.endRefreshing()
+        }
+        
     }
     
     func newsFeed(feed: STNewsFeedParser, corruptFeed error: NSError) {
@@ -142,6 +158,7 @@ class ViewController: UITableViewController, STNewsFeedParserDelegate {
         
         feeds.removeAll(keepCapacity: false)
         entries.removeAll(keepCapacity: false)
+        
     }
     
     // MARK: - UITableViewController
@@ -151,6 +168,19 @@ class ViewController: UITableViewController, STNewsFeedParserDelegate {
     }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
+        //  Locks tableView:cellForRowAtIndexPath while extending and sorting newEntries avoiding entries[indexPath.row] to be out of range.
+        //  UIView uses dispatch blocks so you have to take into account thread unsafety on your data model.
+        //  http://stackoverflow.com/questions/2275626/how-to-stop-uitableview-from-loading-until-data-has-been-fetched
+        
+        if newEntries.isEmpty == false {
+            
+            entries.extend(newEntries)
+            newEntries.removeAll(keepCapacity: false)
+            
+            entries.sort { $0.date!.compare($1.date!) != NSComparisonResult.OrderedAscending }
+        }
+        
         return entries.count
     }
     
