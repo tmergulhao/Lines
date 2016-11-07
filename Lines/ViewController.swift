@@ -19,126 +19,71 @@
 //  limitations under the License.
 
 import UIKit
+
 import STNewsFeedParser
 
-class ViewController: UITableViewController, STNewsFeedParserDelegate {
-    
-    var feeds : Dictionary<String, STNewsFeedParser> = [:]
-    var entries : Array<STNewsFeedEntry> = []
-    var newEntries : Array<STNewsFeedEntry> = []
+//	TODO: Implement feed list view
+
+//	TODO: Look for UITableView tweaks
+//	https://github.com/Dimillian/SwiftHN
+//	http://www.codingexplorer.com/sharing-swift-app-uiactivityviewcontroller/
+//	https://github.com/suryakants/TableViewOperationInSwift
+//	https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/TableView_iPhone/TableViewCells/TableViewCells.html
+
+//	TODO: Auto-Layout tweaks
+//	https://github.com/smileyborg/TableViewCellWithAutoLayoutiOS8
+
+//	TODO: Add placeholder image and message for no feeds
+//	Try to use IBOutlets placeholderImage and placeholderText
+//	http://www.thinkandbuild.it/learn-to-love-auto-layout-programmatically/
+//	https://medium.com/swift-programming/dynamic-layouts-in-swift-b56cf8049b08
+
+//	TODO: Multi line transitions
+//	http://www.appcoda.com/custom-segue-animations/
+
+
+// MARK: - ViewController
+
+class ViewController: UITableViewController {
+	
+	var dataSource : DataSource!
     
     @IBOutlet weak var placeholderImage: UIImageView!
     @IBOutlet var placeholderText : UILabel!
     
-    let favicon = UIImage(named: "Favicon")
-    
-    func refreshData () {
-        
-        for feed in self.feeds.values {
-            feed.parse()
-        }
-        
-    }
-    var dataParsing : Bool {
-        get {
-            var lock : Bool = false
-            for (address, feed) in feeds {
-                lock = lock || feed.isParsing
-            }
-            return lock
-        }
-    }
-    
-    // MARK: - NewsFeedDelegate
-    func willBeginFeedParsing (parser : STNewsFeedParser) {}
-    func didFinishFeedParsing (parser : STNewsFeedParser) {
-        
-        if parser.entries.isEmpty == false {
-            
-            newEntries.extend(parser.entries)
-            
-            tableView.reloadData()
-            
-        }
-        
-        if dataParsing == false {
-            var formatter = NSDateFormatter()
-            formatter.setLocalizedDateFormatFromTemplate("MMM d, h:mm a")
-            var title = "Last update: " + formatter.stringFromDate(NSDate())
-            var attributedTitle = NSAttributedString(string: title)
-            
-            self.refreshControl?.attributedTitle = attributedTitle;
-            
-            self.refreshControl?.endRefreshing()
-        }
-        
-    }
-    
-    func newsFeed(feed: STNewsFeedParser, corruptFeed error: NSError) {
-        if let errorDict = error.userInfo as? Dictionary<String, String> {
-            error.code
-
-            if let description = errorDict["description"] {
-                println(description)
-            }
-        }
-    }
-    func newsFeed(feed: STNewsFeedParser, XMLParserError error: NSError) {
-        if let errorDict = error.userInfo as? Dictionary<String, String> {
-            error.code
-            
-            if let description = errorDict["description"] {
-                println(description)
-            }
-        }
-    }
-    func newsFeed(feed: STNewsFeedParser, invalidAddress address: String, andError error: NSError) {
-        if let errorDict = error.userInfo as? Dictionary<String, String> {
-            error.code
-            
-            if let description = errorDict["description"] {
-                println(description)
-            }
-        }
-        
-        feeds.removeValueForKey(feed.info.link)
-    }
-//    func newsFeed(feed: NewsFeedParser, unknownElement elementName: String, withAttributes attributeDict: NSDictionary, andError error: NSError) {
-//        if let errorDict = error.userInfo as? Dictionary<String, String> {
-//            error.code
-//            
-//            if let description = errorDict["description"] {
-//                println(description)
-//            }
-//        }
-//    }
-    
-    // MARK: ViewController
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        refreshControl?.addTarget(self, action: Selector("refreshData"), forControlEvents: UIControlEvents.ValueChanged)
-        
-        tableView.estimatedRowHeight = 87
+		
+		self.view.tintColor = UIColor.orangeColor()
+		
+		self.dataSource = DataSource(tableView: self.tableView, withCellId: "EntryCell")
+		
+		tableView.estimatedRowHeight = 87
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.contentInset = UIEdgeInsetsZero
         
-        CoreDataInterface().loadSession()
-        
-        var feeds = CoreDataInterface().listView
-        
-        for address in feeds {
+		var addresses = [
+			"http://daringfireball.net/feeds/main",
+			"http://www.swiss-miss.com/feed",
+			"http://nautil.us/rss/all",
+			"http://feeds.feedburner.com/zenhabits",
+			"http://feeds.feedburner.com/codinghorror",
+			"http://red-glasses.com/index.php/feed/",
+			"http://bldgblog.blogspot.com/feeds/posts/default?alt=rss",
+			"http://alistapart.com/site/rss"
+		]
+		
+        for address in addresses {
             if let url = NSURL(string: address) {
-                var feed = STNewsFeedParser(feedFromUrl: url)
+                let feed = STNewsFeedParser(feedFromUrl: url, concurrencyType: STNewsFeedParserConcurrencyType.PrivateQueue)
+				
+                feed.delegate = dataSource
                 
-                feed.delegate = self
-                
-                self.feeds[address] = feed
+                dataSource.feeds.append(feed)
             }
         }
         
-        refreshData()
+        dataSource.refreshData()
         
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
@@ -149,79 +94,31 @@ class ViewController: UITableViewController, STNewsFeedParserDelegate {
     
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(true)
-        
+		
         self.tableView.reloadData()
     }
     
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        
-        feeds.removeAll(keepCapacity: false)
-        entries.removeAll(keepCapacity: false)
-        
-    }
-    
     // MARK: - UITableViewController
-    
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return 1
-    }
-    
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
-        //  Locks tableView:cellForRowAtIndexPath while extending and sorting newEntries avoiding entries[indexPath.row] to be out of range.
-        //  UIView uses dispatch blocks so you have to take into account thread unsafety on your data model.
-        //  http://stackoverflow.com/questions/2275626/how-to-stop-uitableview-from-loading-until-data-has-been-fetched
-        
-        if newEntries.isEmpty == false {
-            
-            entries.extend(newEntries)
-            newEntries.removeAll(keepCapacity: false)
-            
-            entries.sort { $0.date!.compare($1.date!) != NSComparisonResult.OrderedAscending }
-        }
-        
-        return entries.count
-    }
-    
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("idCell", forIndexPath: indexPath) as CustomTableViewCell
-        
-        let entry = entries[indexPath.row]
-        
-        let formatter = NSDateFormatter()
-        formatter.dateStyle = .MediumStyle
-        formatter.doesRelativeDateFormatting = true
-        
-//        let formatter = NSDateFormatter()
-//        formatter.setLocalizedDateFormatFromTemplate("MMM d")
-        
-        let date = entry.date
-        
-        if let simpleLink = entry.info.domain {
-            cell.address.text = simpleLink + " — " + formatter.stringFromDate(date)
-        } else {
-            cell.address.text = entry.info.link + " — " + formatter.stringFromDate(date)
-        }
-        
-        cell.title.text = entry.title
-        cell.feedName.text = entry.info.title
-        cell.favImage.image = favicon
-        
-        return cell
-    }
-    override func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [AnyObject]? {
+	
+	override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+		// UIApplication.sharedApplication().openURL(<#url: NSURL#>)
+		
+		println(indexPath)
+	}
+	
+	override func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [AnyObject]? {
         
         var readLaterRowAction = UITableViewRowAction(style: UITableViewRowActionStyle.Normal, title: "Read later", handler:{action, indexpath in
             
             self.tableView.setEditing(false, animated: true)
         });
         
-        var silenceRowAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "Mute", handler:{action, indexpath in
+        var silenceRowAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "Mute", handler:{
+			action, indexpath in
             
             self.tableView.setEditing(false, animated: true)
             
-            var target = self.entries[indexPath.row].info.title
+            var target = self.dataSource.entries[indexPath.row].info.title
             
             let alert = UIAlertView(title: "\(target) is muted", message: "You may unmute it on at the subscriptions panel.\nHave a nice rest and keep reading.", delegate: self, cancelButtonTitle: "OK")
             
@@ -231,10 +128,10 @@ class ViewController: UITableViewController, STNewsFeedParserDelegate {
             var j = 0
             var indexPaths : Array<NSObject> = []
             
-            for var i = 0, j = 0; i+j < self.entries.count; {
+            for var i = 0, j = 0; i+j < self.dataSource.entries.count; {
                 
-                if self.entries[i].info.title == target {
-                    self.entries.removeAtIndex(i)
+                if self.dataSource.entries[i].info.title == target {
+                    self.dataSource.entries.removeAtIndex(i)
                     
                     indexPaths.append(NSIndexPath(forRow: i + j, inSection: indexpath.section))
                     
@@ -246,10 +143,10 @@ class ViewController: UITableViewController, STNewsFeedParserDelegate {
             
             self.tableView.deleteRowsAtIndexPaths(indexPaths, withRowAnimation: UITableViewRowAnimation.Automatic)
             
-            self.entries = self.entries.filter({
+            self.dataSource.entries = self.dataSource.entries.filter({
                 $0.info.title != target
             })
-            
+			
             self.tableView.reloadData()
         });
         // readLaterRowAction.backgroundColor = UIColor.darkGrayColor()
@@ -257,57 +154,14 @@ class ViewController: UITableViewController, STNewsFeedParserDelegate {
         
         return [readLaterRowAction, silenceRowAction];
     }
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        //
-    }
-//    override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+	
+//	override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {}
+	
+//	override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
 //        return UITableViewAutomaticDimension
 //    }
     
     
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-    // Return NO if you do not want the specified item to be editable.
-    return true
-    }
-    */
-    
-    /*
-    // Override to support editing the table view.
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-    if editingStyle == .Delete {
-    // Delete the row from the data source
-    tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-    } else if editingStyle == .Insert {
-    // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }
-    }
-    */
-    
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-    
-    }
-    */
-    
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-    // Return NO if you do not want the item to be re-orderable.
-    return true
-    }
-    */
-    
-    /*
-    // MARK: - Navigation
-    
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-    }
-    */
+	override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {	return true }
     
 }

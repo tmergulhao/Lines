@@ -9,6 +9,11 @@
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
+		<key>Some to read.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>4</integer>
+		</dict>
 		<key>Subscribe.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
@@ -18,6 +23,11 @@
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
 		<key>790F13F41A4CBFAB00F28EB1</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>792B45F21A6C4B9C004FDB8F</key>
 		<dict>
 			<key>primary</key>
 			<true/>

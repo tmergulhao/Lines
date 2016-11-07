@@ -9,6 +9,15 @@
 import UIKit
 import MobileCoreServices
 
+//	TODO: Implement subscribe action using STNewsFeedDiscovery class
+//	https://medium.com/ios-os-x-development/learnings-from-building-a-today-view-extension-in-ios-8-710d5f481594
+//	http://swiftiostutorials.com/tutorial-creating-ios-app-extension-ios-8-perform-custom-actions-safari-content/
+//	http://www.techotopia.com/index.php/Creating_an_iOS_8_Action_Extension
+//	http://www.glimsoft.com/06/28/ios-8-today-extension-tutorial/
+//	http://sundeepgupta.ca/posts/ios-8-share-extension-safari-url-example
+//	http://stackoverflow.com/questions/24056024/sharing-extension-in-ios8-beta
+//	http://developer.xamarin.com/samples/ios/iOS8/
+
 class ActionViewController: UIViewController {
 
     @IBOutlet weak var imageView: UIImageView!
@@ -16,7 +25,7 @@ class ActionViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        for item in self.extensionContext!.inputItems as [NSExtensionItem] {
+        for item in self.extensionContext!.inputItems as! [NSExtensionItem] {
             println(item)
         }
     
@@ -26,13 +35,13 @@ class ActionViewController: UIViewController {
         // Replace this with something appropriate for the type[s] your extension supports.
         var imageFound = false
         for item: AnyObject in self.extensionContext!.inputItems {
-            let inputItem = item as NSExtensionItem
+            let inputItem = item as! NSExtensionItem
             for provider: AnyObject in inputItem.attachments! {
-                let itemProvider = provider as NSItemProvider
-                if itemProvider.hasItemConformingToTypeIdentifier(kUTTypeImage as NSString) {
+                let itemProvider = provider as! NSItemProvider
+                if itemProvider.hasItemConformingToTypeIdentifier(kUTTypeImage as! String) {
                     // This is an image. We'll load it, then place it in our image view.
                     weak var weakImageView = self.imageView
-                    itemProvider.loadItemForTypeIdentifier(kUTTypeImage as NSString, options: nil, completionHandler: { (image, error) in
+                    itemProvider.loadItemForTypeIdentifier(kUTTypeImage as! String, options: nil, completionHandler: { (image, error) in
                         if image != nil {
                             NSOperationQueue.mainQueue().addOperationWithBlock {
                                 if let imageView = weakImageView {
